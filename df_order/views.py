@@ -1,3 +1,4 @@
+#coding=utf-8
 import django.http
 from django.shortcuts import render
 from df_user.models import *

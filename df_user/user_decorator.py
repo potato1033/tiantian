@@ -1,3 +1,4 @@
+#coding=utf-8
 from django.http import HttpResponseRedirect
 
 #如果未登录成功则返回登录页面

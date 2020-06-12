@@ -1,3 +1,4 @@
+#coding=utf-8
 from django.db import models
 
 #谁买了几个什么商品

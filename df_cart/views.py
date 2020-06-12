@@ -1,3 +1,4 @@
+#coding=utf-8
 import django.http
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
