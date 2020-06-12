@@ -11,7 +11,7 @@ cryptography==2.3
 cupshelpers==1.0
 dbus-python==1.2.4
 decorator==4.2.1
-Django==2.0.1
+Django==2.2.13
 django-haystack==2.8.1
 django-tinymce==3.0.2
 gpg==1.10.0
