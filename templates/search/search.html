@@ -1,0 +1,49 @@
+{%extends 'df_goods/base.html'%}
+
+{%block content%}
+	<div class="breadcrumb">
+		<a href="/">全部分类</a>
+		<span>></span>
+		<a href="#">{{title}}</a>
+	</div>
+
+    <div class="main_wrap clearfix">
+        <div class="wrap clearfix">
+            <ul class="goods_type_list clearfix">
+            {% if query %}
+                {% for result in page.object_list %}
+                    <li>
+					    <a href="/{{result.object.id}}/"><img src="/static/{{result.object.gpic}}"></a>
+					    <h4><a href="/{{result.object.id}}/">{{result.object.gtitle}}</a></h4>
+					    <div class="operate">
+						    <span class="prize">￥{{result.object.gprice}}</span>
+						    <span class="unit">{{result.object.gunit}}</span>
+						    <a href="/cart/add{{result.object.id}}_1/" class="add_goods" title="加入购物车"></a>
+					    </div>
+				    </li>
+                {% empty %}
+                    <p>啥也没找到......</p>
+                {% endfor %}
+            {% endif %}
+            </ul>
+
+            <div class="pagenation">
+                {%if page.has_previous%}
+                    <a href="/search/?q={{query}}&amp;page={{page.previous_page_number}}">上一页</a>
+                {%endif%}
+
+                {%for pindex in paginator.page_range%}
+                    {%if pindex == page.number%}
+                        <a href="#" class="active">{{ pindex }}</a>
+                    {% else %}
+                        <a href="/search/?q={{query}}&amp;page={{pindex}}">{{ pindex }}</a>
+                    {%endif%}
+                {%endfor%}
+
+                {%if page.has_next%}
+                    <a href="/search/?q={{query}}&amp;page={{page.next_page_number}}">下一页</a>
+                {%endif%}
+            </div>
+        </div>
+    </div>
+{%endblock content%}

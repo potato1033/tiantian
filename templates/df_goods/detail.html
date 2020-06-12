@@ -1,0 +1,134 @@
+{%extends 'df_goods/base.html'%}
+
+{%block head%}
+<script>
+//$('.num_show') class值用 .
+// $('#gprice')  id值用 #
+
+    //通过+标签加数量
+    function add() {
+        num = parseFloat($('.num_show').val());
+        $('.num_show').val(num+1)
+        $('.num_show').blur()
+    }
+
+    //通过-标签减数量
+    function minus() {
+        num = parseFloat($('.num_show').val());
+        if(num<=1){return;}
+        $('.num_show').val(num-1)
+        $('.num_show').blur()
+    }
+
+    //通过输入框改变数量
+    $(function () {
+        $('.num_show').blur(function () {
+            num = $(this).val();
+            if(num<=1){num = 1;}
+            if(num>=100){num = 99;}
+            price = parseFloat($('#gprice').text());
+            total = num*price
+            $('.num_show').val(num);
+            $('#gtotal').text(total.toFixed(2)+'元')
+        })
+    })
+</script>
+
+{%endblock head%}
+{%block content%}
+	<div class="breadcrumb">
+		<a href="/">全部分类</a>
+		<span>></span>
+		<a href="/list{{typeinfo.id}}_1_1/">{{title}}</a>
+		<span>></span>
+		<a href="#">商品详情</a>
+	</div>
+
+	<div class="goods_detail_con clearfix">
+		<div class="goods_detail_pic fl"><img src="/static/{{g.gpic}}" width="300px" height="300px"></div>
+
+		<div class="goods_detail_list fr">
+			<h3>{{g.gtitle}}</h3>
+			<p>{{g.gbrief}}</p>
+			<div class="prize_bar">
+				<span class="show_pirze">¥<em id="gprice">{{g.gprice}}</em></span>
+				<span class="show_unit">单  位：{{g.gunit}}</span>
+                <span class="show_unit">库  存：<span class="goods_rest">{{ g.grest }}</span></span>
+			</div>
+			<div class="goods_num clearfix">
+				<div class="num_name fl">数 量：</div>
+				<div class="num_add fl">
+					<input type="text" class="num_show fl" value="1">
+					<a href="javascript:add();" class="add fr">+</a>
+					<a href="javascript:minus();" class="minus fr">-</a>
+				</div> 
+			</div>
+			<div class="total">总价：<em id="gtotal">{{g.gprice}}元</em></div>
+			<div class="operate_btn">
+				<a href="javascript:;" class="buy_btn">立即购买</a>
+				<a href="javascript:;" class="add_cart" id="add_cart">加入购物车</a>				
+			</div>
+		</div>
+	</div>
+
+	<div class="main_wrap clearfix">
+		<div class="l_wrap fl clearfix">
+			<div class="new_goods">
+				<h3>新品推荐</h3>
+				<ul>
+                    {% for g in news %}
+					<li>
+                        <a href="/{{g.id}}/"><img src="/static/{{g.gpic}}"></a>
+						<h4><a href="/{{g.id}}/">{{g.gtitle}}</a></h4>
+						<div class="prize">￥{{g.gprice}}</div>
+					</li>
+                    {%endfor%}
+				</ul>
+			</div>
+		</div>
+
+		<div class="r_wrap fr clearfix">
+			<ul class="detail_tab clearfix">
+				<li class="active">商品介绍</li>
+				<li>评论</li>
+			</ul>
+
+			<div class="tab_content">
+                <dd>{{g.gcontent|safe}}</dd>
+			</div>
+		</div>
+
+        <div class="add_jump"></div>
+
+        <script type="text/javascript">
+            var $add_x = $('#add_cart').offset().top;
+            var $add_y = $('#add_cart').offset().left;
+
+            var $to_x = $('#show_count').offset().top;
+            var $to_y = $('#show_count').offset().left;
+            //定义动画css样式
+            $('.add_jump').css({'top': $add_x+10, 'left': $add_y+80,'display': 'block' })
+            $('#add_cart').click(function () {
+                //判断是否登录，没有登录先登录（主要这里用的是ajax，没有页面刷新，无法使用装饰器判断登录状态）
+                if($('.login_btn').text().indexOf('登录')>=0){
+                    alert('请先登录再购买');
+                    location.href = '/user/login/';
+                    return;
+                }
+                //动画
+                $(".add_jump").stop().animate({
+                    'left': $to_y + 7,
+                    'top': $to_x + 7},
+                    "fast",function(){
+                        $('.add_jump').fadeOut('fast', function (){})
+                })
+                //异步ajax中的.get
+                num = parseInt($('.num_show').val())
+                $.get('/cart/add{{g.id}}_'+num+'/',function (data) {
+                  $('#show_count').text(data.ccount)
+                })
+            })
+        </script>
+	</div>
+
+{%endblock content%}

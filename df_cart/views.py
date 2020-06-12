@@ -1,0 +1,69 @@
+import django.http
+from django.shortcuts import render, redirect
+from django.http import JsonResponse
+
+import df_goods.models
+from .models import *
+from df_user import user_decorator
+
+
+# Create your views here.
+@user_decorator.login
+def cart(request):
+    uid = request.session['user_id']
+    carts = CartInfo.objects.filter(user_id=uid)
+    con = { 'title': '购物车',
+            'page_name': 1,
+            'carts': carts, }
+    return render(request, 'df_cart/cart.html', con)
+
+
+@user_decorator.login
+def add(request, gid, count):
+    uid = request.session['user_id']
+    gid = int(gid)
+    count = int(count)
+    #查询购物车中是否存在该商品
+    carts = CartInfo.objects.filter(user_id=uid, goods_id=gid,)
+    goods = df_goods.models.GoodsInfo.objects.get(id=gid)
+    if len(carts) >= 1:    #如果存在该商品，商品数目加上本次添加的数量
+        cart = carts[0]
+        cart.count += count
+        cart.total = cart.count * goods.gprice
+    else:    #如果没有，则添加该商品到购物车
+        cart = CartInfo()
+        cart.user_id = uid
+        cart.goods_id = gid
+        cart.count = count
+        cart.total = cart.count*goods.gprice
+    cart.save()
+    #如果请求为ajax则返回json，否则返回购物车
+    if request.is_ajax():
+        ccount = CartInfo.objects.filter(user_id=request.session['user_id']).count()#得到CartInfo表中所有该用户的数据条数
+        return JsonResponse({'ccount': ccount})
+    else:
+        return redirect('/cart/')
+
+
+@user_decorator.login
+def edit(request, cid, count):
+    try:
+        cart = CartInfo.objects.get(pk=int(cid))
+        cart.count = int(count)
+        cart.total = cart.count * cart.goods.gprice
+        cart.save()
+        data={'ok':0}
+    except:
+        data = {'ok': count}
+    return JsonResponse(data)
+
+
+@user_decorator.login
+def delete(request, cid, ):
+    try:
+        cart = CartInfo.objects.get(pk=int(cid))
+        cart.delete()
+        data = {'ok': 1}
+    except:
+        data = {'ok': 0 }
+    return JsonResponse(data)
